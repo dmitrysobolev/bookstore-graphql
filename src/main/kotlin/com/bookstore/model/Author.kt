@@ -2,7 +2,6 @@ package com.bookstore.model
 
 import jakarta.persistence.*
 import java.util.HashSet
-import java.util.Set
 import java.util.UUID
 
 // Note: The kotlin-maven-noarg plugin should generate a no-arg constructor needed by JPA.
