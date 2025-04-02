@@ -22,7 +22,3 @@ mvnw.cmd
 
 # OS generated files
 .DS_Store
-
-# Secrets
-src/main/resources/application.yml
-src/main/resources/application.properties 

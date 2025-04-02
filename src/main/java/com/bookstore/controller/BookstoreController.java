@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
@@ -34,13 +35,23 @@ public class BookstoreController {
     }
 
     @QueryMapping
-    public List<Author> authors() {
+    public List<Author> authors(@Argument String name) {
+        if (name != null && !name.isEmpty()) {
+            return authorRepository.findByNameContainingIgnoreCase(name);
+        }
         return authorRepository.findAll();
     }
 
     @QueryMapping
     public Author author(@Argument UUID id) {
         return authorRepository.findById(id).orElse(null);
+    }
+
+    @SchemaMapping(typeName = "Book", field = "authors")
+    public Set<Author> getAuthors(Book book) {
+        Book bookWithAuthors = bookRepository.findById(book.getId())
+                                             .orElseThrow(() -> new RuntimeException("Book not found"));
+        return bookWithAuthors.getAuthors();
     }
 
     @MutationMapping
