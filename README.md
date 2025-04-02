@@ -29,7 +29,7 @@ This project demonstrates a simple bookstore management system API built using:
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
+    git clone git@github.com:dmitrysobolev/bookstore-graphql.git
     cd bookstore-graphql
     ```
 
