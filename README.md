@@ -51,6 +51,22 @@ This project demonstrates a simple bookstore management system API built using:
     ```
     The application will start on port 8080. Flyway will automatically run the migrations in `src/main/resources/db/migration` to create the schema and seed the initial data.
 
+## Testing
+
+The project uses JUnit 5 and Testcontainers for integration testing.
+
+*   **Repository Tests (`src/test/kotlin/.../repository`)**: Use `@DataJpaTest` and Testcontainers to test JPA repositories against a real PostgreSQL database spun up dynamically for the test execution.
+*   **Controller Tests (`src/test/kotlin/.../controller`)**: Use `@SpringBootTest` and Testcontainers to run full integration tests of the GraphQL API layer, also against a dynamic PostgreSQL database.
+
+**Running Tests:**
+
+1.  **Ensure Docker is running.** Testcontainers requires a running Docker daemon to manage the test database containers.
+2.  Run the tests using Maven:
+    ```bash
+    ./mvnw test
+    ```
+    This command will compile the test code and execute all tests using the Surefire plugin.
+
 ## Accessing the API
 
 *   **GraphQL Playground (GraphiQL):** Available at [http://localhost:8080/graphiql](http://localhost:8080/graphiql)
