@@ -1,6 +1,6 @@
 package com.bookstore.model
 
-import jakarta.persistence.* // Keep JPA annotations
+import jakarta.persistence.*
 import java.math.BigDecimal
 import java.util.HashSet
 import java.util.Set
@@ -24,13 +24,12 @@ data class Book(
     )
     var authors: MutableSet<Author> = HashSet(),
 
-    var isbn: String? = null, // Assuming ISBN can be nullable based on schema
+    var isbn: String? = null,
 
-    var price: BigDecimal? = null, // Assuming price can be nullable
+    var price: BigDecimal? = null,
 
-    var quantity: Int? = null // Assuming quantity can be nullable
+    var quantity: Int? = null
 ) {
-    // Override equals and hashCode for JPA entities with collections
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -44,9 +43,7 @@ data class Book(
         return id?.hashCode() ?: 0
     }
 
-    // Override toString to prevent recursion
     override fun toString(): String {
-        // Exclude authors to avoid potential infinite loop
         return "Book(id=$id, title='$title', isbn=$isbn, price=$price, quantity=$quantity)" 
     }
 } 

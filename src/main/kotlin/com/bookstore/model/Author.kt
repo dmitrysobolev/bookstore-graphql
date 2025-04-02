@@ -1,6 +1,6 @@
 package com.bookstore.model
 
-import jakarta.persistence.* // Keep JPA annotations
+import jakarta.persistence.*
 import java.util.HashSet
 import java.util.Set
 import java.util.UUID
@@ -12,17 +12,15 @@ data class Author(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID? = null, // Use var if ID can be updated post-creation, UUID? allows null before saving
+    var id: UUID? = null,
 
-    var name: String = "", // Initialize with default or make nullable (String?) if allowed
+    var name: String = "",
 
-    var biography: String? = null, // Nullable field
+    var biography: String? = null,
 
     @ManyToMany(mappedBy = "authors", fetch = FetchType.LAZY)
-    var books: MutableSet<Book> = HashSet() // Use MutableSet for collections that can change
+    var books: MutableSet<Book> = HashSet()
 ) {
-    // Override equals and hashCode to prevent issues with collections in bidirectional relationships
-    // Base equality on the unique ID only
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -36,8 +34,7 @@ data class Author(
         return id?.hashCode() ?: 0
     }
 
-    // Optional: Override toString to avoid infinite loops with bidirectional relationships
     override fun toString(): String {
-        return "Author(id=$id, name='$name', biography='$biography')" // Exclude books collection
+        return "Author(id=$id, name='$name', biography='$biography')"
     }
 } 
