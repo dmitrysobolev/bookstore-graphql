@@ -33,11 +33,13 @@ class BookstoreControllerTest {
         // Arrange: Query to get all books and their authors
         val query = """
             query {
-              books {
-                id
-                title
-                authors {
-                  name
+              books(page: {size: 50}) {
+                content {
+                  id
+                  title
+                  authors {
+                    name
+                  }
                 }
               }
             }
@@ -46,7 +48,7 @@ class BookstoreControllerTest {
         // Act & Assert
         graphQlTester.document(query)
             .execute()
-            .path("books")
+            .path("books.content")
             .entityList(Book::class.java)
             .hasSizeGreaterThan(29)
             .get().let { books -> // Extract list first, then assert
@@ -66,10 +68,12 @@ class BookstoreControllerTest {
         val query = """
             query (${'$'}name: String) {
               authors(name: ${'$'}name) {
-                id
-                name
-                books {
-                  title
+                content {
+                  id
+                  name
+                  books {
+                    title
+                  }
                 }
               }
             }
@@ -79,7 +83,7 @@ class BookstoreControllerTest {
         graphQlTester.document(query)
             .variable("name", authorName)
             .execute()
-            .path("authors")
+            .path("authors.content")
             .entityList(Author::class.java)
             .hasSize(1)
             .get().let { authors -> // Extract list first, then assert
@@ -122,15 +126,14 @@ class BookstoreControllerTest {
                 assertThat(author.name).isEqualTo(authorName)
                 assertThat(author.biography).isEqualTo(biography)
             }
-        
+
         // Optional: Verify with a query - standard string with escaped internal quotes
-        graphQlTester.document("{ authors(name: \"$authorName\") { name } }")
+        graphQlTester.document("{ authors(name: \"$authorName\") { content { name } } }")
             .execute()
-            .path("authors[0].name")
+            .path("authors.content[0].name")
             .entity(String::class.java)
             .isEqualTo(authorName)
     }
 
     // TODO: Add tests for createBook, updateAuthor, updateBook, deleteAuthor, deleteBook
 }
- 
