@@ -14,10 +14,56 @@ type Book {
     quantity: Int!
 }
 
+# Pagination input type
+input PageInput {
+    page: Int = 0
+    size: Int = 10
+    sort: String
+    direction: SortDirection = ASC
+}
+
+# Sort direction enum
+enum SortDirection {
+    ASC
+    DESC
+}
+
+# Paginated response for Books
+type BookPage {
+    content: [Book!]!
+    totalElements: Int!
+    totalPages: Int!
+    number: Int!
+    size: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+}
+
+# Paginated response for Authors
+type AuthorPage {
+    content: [Author!]!
+    totalElements: Int!
+    totalPages: Int!
+    number: Int!
+    size: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+}
+
 type Query {
-    books: [Book!]!
+    # Get all books (paginated)
+    books(page: PageInput): BookPage!
+
+    # Get books by title (paginated)
+    booksByTitle(title: String!, page: PageInput): BookPage!
+
+    # Get a single book by ID
     book(id: ID!): Book
-    authors(name: String): [Author!]!
+
+    # Get all authors (paginated)
+    authors(name: String, page: PageInput): AuthorPage!
+
+    # Get a single author by ID
     author(id: ID!): Author
 }
 
@@ -25,7 +71,7 @@ type Mutation {
     createAuthor(name: String!, biography: String): Author!
     updateAuthor(id: ID!, name: String, biography: String): Author!
     deleteAuthor(id: ID!): Boolean!
-    
+
     createBook(title: String!, authorIds: [ID!]!, isbn: String!, price: Float!, quantity: Int!): Book!
     updateBook(id: ID!, title: String, authorIds: [ID!], isbn: String, price: Float, quantity: Int): Book!
     deleteBook(id: ID!): Boolean!

@@ -1,5 +1,9 @@
 package com.bookstore.controller
 
+import com.bookstore.dto.AuthorPage
+import com.bookstore.dto.BookPage
+import com.bookstore.dto.Page
+import com.bookstore.dto.PageInput
 import com.bookstore.model.Author
 import com.bookstore.model.Book
 import com.bookstore.repository.AuthorRepository
@@ -20,25 +24,38 @@ class BookstoreController(
 ) {
 
     @QueryMapping
-    fun books(): List<Book> = bookRepository.findAll()
+    fun books(@Argument page: PageInput?): BookPage {
+        val pageRequest = page?.toPageRequest() ?: PageInput().toPageRequest()
+        val result = bookRepository.findAll(pageRequest)
+        return Page.from(result)
+    }
+
+    @QueryMapping
+    fun booksByTitle(@Argument title: String, @Argument page: PageInput?): BookPage {
+        val pageRequest = page?.toPageRequest() ?: PageInput().toPageRequest()
+        val result = bookRepository.findByTitleContainingIgnoreCase(title, pageRequest)
+        return Page.from(result)
+    }
 
     @QueryMapping
     fun book(@Argument id: UUID): Book? = bookRepository.findById(id).orElse(null)
 
     @QueryMapping
-    fun authors(@Argument name: String?): List<Author> {
-        return if (!name.isNullOrBlank()) {
-            authorRepository.findByNameContainingIgnoreCase(name)
+    fun authors(@Argument name: String?, @Argument page: PageInput?): AuthorPage {
+        val pageRequest = page?.toPageRequest() ?: PageInput().toPageRequest()
+        val result = if (!name.isNullOrBlank()) {
+            authorRepository.findByNameContainingIgnoreCase(name, pageRequest)
         } else {
-            authorRepository.findAll()
+            authorRepository.findAll(pageRequest)
         }
+        return Page.from(result)
     }
 
     @QueryMapping
     fun author(@Argument id: UUID): Author? = authorRepository.findById(id).orElse(null)
 
-    // @SchemaMapping for resolving Book.authors field (handles lazy loading if needed)
-    // Consider if FetchType.EAGER on Book.authors makes this less critical, but good practice.
+    // @SchemaMapping for resolving Book.authors field (handles lazy loading)
+    // This is necessary because Book.authors uses FetchType.LAZY to prevent N+1 issues.
     @SchemaMapping(typeName = "Book", field = "authors")
     fun getAuthors(book: Book): Set<Author> {
         // Re-fetch to ensure authors are loaded if potentially lazy
@@ -48,6 +65,16 @@ class BookstoreController(
             .orElseThrow { RuntimeException("Book not found with id: $bookId") } 
         // Return MutableSet from entity
         return fetchedBook.authors
+    }
+
+    @SchemaMapping(typeName = "Author", field = "books")
+    fun getBooks(author: Author): Set<Book> {
+        // Re-fetch to ensure books are loaded (since they're lazy loaded)
+        val authorId = requireNotNull(author.id) { "Author must have an ID to fetch books" }
+        val fetchedAuthor = authorRepository.findById(authorId)
+            .orElseThrow { RuntimeException("Author not found with id: $authorId") }
+        // Return MutableSet from entity
+        return fetchedAuthor.books
     }
 
     @MutationMapping

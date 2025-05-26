@@ -12,12 +12,13 @@ This project demonstrates a simple bookstore management system API built using:
 
 ## Features
 
-*   Query books and authors.
-*   Filter authors by name.
+*   Query books and authors with pagination support.
+*   Filter books by title and authors by name.
 *   Create, update, delete books and authors.
 *   Many-to-many relationship between books and authors.
 *   UUIDs for primary keys.
 *   Database schema management and seeding via Flyway.
+*   Optimized lazy loading to prevent N+1 query issues.
 
 ## Prerequisites
 
@@ -76,33 +77,62 @@ The project uses JUnit 5 and Testcontainers for integration testing.
 
 Refer to the `src/main/resources/graphql/schema.graphqls` file for the full schema.
 
-**Query all books:**
+**Query all books (with pagination):**
 ```graphql
 query {
-  books {
-    id
-    title
-    isbn
-    price
-    quantity
-    authors {
+  books(page: {page: 0, size: 5, sort: "title", direction: ASC}) {
+    content {
       id
-      name
+      title
+      isbn
+      price
+      quantity
+      authors {
+        id
+        name
+      }
     }
+    totalElements
+    totalPages
+    number
+    size
+    hasNext
+    hasPrevious
   }
 }
 ```
 
-**Query authors filtered by name:**
+**Search books by title (with pagination):**
 ```graphql
 query {
-  authors(name: "Tolstoy") {
-    id
-    name
-    books {
+  booksByTitle(title: "War", page: {page: 0, size: 3}) {
+    content {
       id
       title
+      authors {
+        name
+      }
     }
+    totalElements
+    hasNext
+  }
+}
+```
+
+**Query authors filtered by name (with pagination):**
+```graphql
+query {
+  authors(name: "Tolstoy", page: {page: 0, size: 10}) {
+    content {
+      id
+      name
+      books {
+        id
+        title
+      }
+    }
+    totalElements
+    totalPages
   }
 }
 ```

@@ -14,8 +14,8 @@ data class Book(
 
     var title: String = "",
 
-    // Eager fetch can cause N+1 issues, consider LAZY with @SchemaMapping or fetch joins
-    @ManyToMany(fetch = FetchType.EAGER) 
+    // Using LAZY fetch to prevent N+1 issues, with @SchemaMapping in controller
+    @ManyToMany(fetch = FetchType.LAZY) 
     @JoinTable(
         name = "book_author",
         joinColumns = [JoinColumn(name = "book_id")],
